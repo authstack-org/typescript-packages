@@ -1,0 +1,65 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package name under packages/
+        required: true
+        default: backend-sdk
+      version:
+        description: Optional version bump (patch, minor, major)
+        required: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout authstack backend
+        uses: actions/checkout@v4
+        with:
+          repository: authstack-org/authstack
+          path: authstack
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.1
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate SDK
+        run: pnpm --filter @authstack/${{ github.event.inputs.package || 'backend-sdk' }} run generate
+        env:
+          AUTHSTACK_ROOT: ${{ github.workspace }}/authstack
+
+      - name: Build package
+        run: pnpm --filter @authstack/${{ github.event.inputs.package || 'backend-sdk' }} run build
+
+      - name: Publish to npm
+        run: pnpm --filter @authstack/${{ github.event.inputs.package || 'backend-sdk' }} publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

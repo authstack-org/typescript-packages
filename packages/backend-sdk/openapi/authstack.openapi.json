@@ -1,0 +1,1326 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Authstack API",
+    "description": "HTTP API exposed by Authstack.",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development"
+    }
+  ],
+  "paths": {
+    "/.well-known/jwks.json": {
+      "get": {
+        "tags": [
+          "JWKS"
+        ],
+        "summary": "Return the public JSON Web Key Set",
+        "operationId": "jwks",
+        "responses": {
+          "200": {
+            "description": "JSON Web Key Set",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwksResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/applications": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create an application",
+        "operationId": "admin_create_application",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApplicationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Application created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateApplicationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "adminCookie": []
+          }
+        ]
+      }
+    },
+    "/admin/apps": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create an application from the admin form",
+        "operationId": "admin_create_app",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "HTML response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "adminCookie": []
+          }
+        ]
+      }
+    },
+    "/admin/apps/new": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Render new application form",
+        "operationId": "admin_new_app_page",
+        "responses": {
+          "200": {
+            "description": "HTML response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "adminCookie": []
+          }
+        ]
+      }
+    },
+    "/admin/dashboard": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Render admin dashboard",
+        "operationId": "admin_dashboard",
+        "responses": {
+          "200": {
+            "description": "HTML response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "adminCookie": []
+          }
+        ]
+      }
+    },
+    "/admin/login": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Render admin login page",
+        "operationId": "admin_login_page",
+        "responses": {
+          "200": {
+            "description": "HTML response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Submit admin login form",
+        "operationId": "admin_process_login",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "303": {
+            "description": "Redirect"
+          }
+        }
+      }
+    },
+    "/admin/logout": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Clear the admin session cookie",
+        "operationId": "admin_logout",
+        "responses": {
+          "303": {
+            "description": "Redirect"
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create the first admin user",
+        "operationId": "admin_create_user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdminUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Admin user created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAdminUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "adminKey": []
+          }
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Authenticate a user and return access and refresh tokens",
+        "operationId": "auth_login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Revoke a refresh token",
+        "operationId": "auth_logout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Refresh token revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Rotate a refresh token and return a new token pair",
+        "operationId": "auth_refresh",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Token pair rotated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Create a user and personal organization",
+        "operationId": "auth_signup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/auth/switch-org": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Issue a token pair for another organization",
+        "operationId": "auth_switch_org",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchOrgRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Organization switched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/me/organizations": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "List organizations the current user belongs to",
+        "operationId": "me_organizations",
+        "responses": {
+          "200": {
+            "description": "Organizations listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserOrganization"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/orgs": {
+      "get": {
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "List all organizations in this application",
+        "operationId": "orgs_list",
+        "responses": {
+          "200": {
+            "description": "Organizations listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Create a team organization",
+        "operationId": "orgs_create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrgRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Organization created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/orgs/{id}": {
+      "get": {
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Get an organization by ID",
+        "operationId": "orgs_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/orgs/{org_id}/members": {
+      "get": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "List members of an organization",
+        "operationId": "members_list",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Members listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Member"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Add a user to an organization",
+        "operationId": "members_add",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddMemberRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Member added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Member"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/orgs/{org_id}/members/{user_id}": {
+      "delete": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Remove a user from an organization",
+        "operationId": "members_remove",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Member removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "List all users in this application",
+        "operationId": "users_list",
+        "responses": {
+          "200": {
+            "description": "Users listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a user by ID",
+        "operationId": "users_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddMemberRequest": {
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "properties": {
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "user_id": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateAdminUserRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateAdminUserResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateAppForm": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateApplicationRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateApplicationResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "client_secret",
+          "name"
+        ],
+        "properties": {
+          "client_secret": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateOrgRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "slug"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "Jwk": {
+        "type": "object",
+        "required": [
+          "kty",
+          "use",
+          "kid",
+          "alg",
+          "crv",
+          "x",
+          "y"
+        ],
+        "properties": {
+          "alg": {
+            "type": "string"
+          },
+          "crv": {
+            "type": "string"
+          },
+          "kid": {
+            "type": "string"
+          },
+          "kty": {
+            "type": "string"
+          },
+          "use": {
+            "type": "string"
+          },
+          "x": {
+            "type": "string"
+          },
+          "y": {
+            "type": "string"
+          }
+        }
+      },
+      "JwksResponse": {
+        "type": "object",
+        "required": [
+          "keys"
+        ],
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Jwk"
+            }
+          }
+        }
+      },
+      "LoginForm": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "Member": {
+        "type": "object",
+        "required": [
+          "id",
+          "organization_id",
+          "user_id",
+          "role",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        }
+      },
+      "OkResponse": {
+        "type": "object",
+        "required": [
+          "ok"
+        ],
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OrgType": {
+        "type": "string",
+        "enum": [
+          "personal",
+          "team"
+        ]
+      },
+      "Organization": {
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "name",
+          "slug",
+          "org_type",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "logo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "org_type": {
+            "$ref": "#/components/schemas/OrgType"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "properties": {
+          "org_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "refresh_token": {
+            "type": "string"
+          }
+        }
+      },
+      "SignupRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "SignupResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "name"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "SwitchOrgRequest": {
+        "type": "object",
+        "required": [
+          "org_id"
+        ],
+        "properties": {
+          "org_id": {
+            "type": "string"
+          }
+        }
+      },
+      "TokenResponse": {
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "token_type"
+        ],
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string",
+            "example": "Bearer"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "app_id",
+          "name",
+          "email",
+          "email_verified",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "email_verified": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserOrganization": {
+        "type": "object",
+        "required": [
+          "organization",
+          "role"
+        ],
+        "properties": {
+          "organization": {
+            "$ref": "#/components/schemas/Organization"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "adminCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "admin_token"
+      },
+      "adminKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Admin-Key"
+      },
+      "appBasicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Admin",
+      "description": "Admin panel and bootstrap endpoints."
+    },
+    {
+      "name": "Auth",
+      "description": "End-user authentication endpoints."
+    },
+    {
+      "name": "Me",
+      "description": "Current user endpoints."
+    },
+    {
+      "name": "Users",
+      "description": "Application-scoped users."
+    },
+    {
+      "name": "Organizations",
+      "description": "Application-scoped organizations."
+    },
+    {
+      "name": "Members",
+      "description": "Organization membership."
+    },
+    {
+      "name": "JWKS",
+      "description": "JWT verification keys."
+    }
+  ]
+}

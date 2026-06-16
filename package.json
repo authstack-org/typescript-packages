@@ -1,0 +1,19 @@
+{
+  "name": "@authstack/typescript-packages",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "generate": "pnpm --filter @authstack/backend-sdk run generate",
+    "check:generated": "pnpm --filter @authstack/backend-sdk run check:generated"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@10.12.1",
+  "engines": {
+    "node": ">=20"
+  }
+}
