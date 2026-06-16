@@ -9,6 +9,8 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      AUTHSTACK_ROOT: ${{ github.workspace }}/authstack
     defaults:
       run:
         working-directory: .
@@ -41,8 +43,6 @@ jobs:
 
       - name: Check generated SDK output
         run: pnpm check:generated
-        env:
-          AUTHSTACK_ROOT: ${{ github.workspace }}/authstack
 
       - name: Typecheck
         run: pnpm typecheck

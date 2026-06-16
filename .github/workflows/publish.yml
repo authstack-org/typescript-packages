@@ -20,6 +20,8 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      AUTHSTACK_ROOT: ${{ github.workspace }}/authstack
     defaults:
       run:
         working-directory: .
@@ -53,8 +55,9 @@ jobs:
 
       - name: Generate SDK
         run: pnpm --filter @authstack/${{ github.event.inputs.package || 'backend-sdk' }} run generate
-        env:
-          AUTHSTACK_ROOT: ${{ github.workspace }}/authstack
+
+      - name: Verify generated output is committed
+        run: pnpm --filter @authstack/${{ github.event.inputs.package || 'backend-sdk' }} run check:generated
 
       - name: Build package
         run: pnpm --filter @authstack/${{ github.event.inputs.package || 'backend-sdk' }} run build

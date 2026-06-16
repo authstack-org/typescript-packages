@@ -37,7 +37,7 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "prepublishOnly": "pnpm run generate && pnpm run check:generated && pnpm run typecheck && pnpm run test && pnpm run build"
+    "prepublishOnly": "pnpm run typecheck && pnpm run test && pnpm run build"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.9.0"
