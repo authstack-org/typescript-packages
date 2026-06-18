@@ -95,8 +95,9 @@ export type OkResponse = {
 export type OrgType = 'personal' | 'team';
 
 export type Organization = {
-    app_id: string;
+    application_id?: string | null;
     created_at: string;
+    directory_id: string;
     id: string;
     logo?: string | null;
     name: string;
@@ -133,13 +134,14 @@ export type TokenResponse = {
 };
 
 export type User = {
-    app_id: string;
     created_at: string;
+    directory_id: string;
     email: string;
     email_verified: boolean;
     id: string;
     image?: string | null;
     name: string;
+    scoped_application_id?: string | null;
     updated_at: string;
 };
 
