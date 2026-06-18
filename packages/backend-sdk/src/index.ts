@@ -2,6 +2,7 @@ export { createAuthstackClient, type AuthstackClient, type AuthstackClientConfig
 export {
   createAuthResolver,
   encodeBasicAuth,
+  formatBasicAuthCredentials,
   mergeCredentials,
   type AuthstackCredentials,
 } from "./auth.js";

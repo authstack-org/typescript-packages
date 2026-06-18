@@ -1,17 +1,39 @@
 import { describe, expect, it } from "vitest";
 
-import { createAuthResolver, encodeBasicAuth } from "../src/auth.js";
+import {
+  createAuthResolver,
+  encodeBasicAuth,
+  formatBasicAuthCredentials,
+} from "../src/auth.js";
 import { createAuthstackClient } from "../src/client.js";
 import { AuthstackApiError } from "../src/errors.js";
 
+function getRequestHeader(
+  input: RequestInfo | URL,
+  init: RequestInit | undefined,
+  name: string,
+): string | null {
+  if (input instanceof Request) {
+    return input.headers.get(name);
+  }
+
+  return new Headers(init?.headers).get(name);
+}
+
 describe("encodeBasicAuth", () => {
-  it("encodes application credentials", () => {
+  it("returns the base64-encoded app_id:client_secret pair", () => {
     expect(encodeBasicAuth("app-id", "app-secret")).toBe("YXBwLWlkOmFwcC1zZWNyZXQ=");
   });
 });
 
+describe("formatBasicAuthCredentials", () => {
+  it("returns the raw username:password pair for hey-api basic auth", () => {
+    expect(formatBasicAuthCredentials("app-id", "app-secret")).toBe("app-id:app-secret");
+  });
+});
+
 describe("createAuthResolver", () => {
-  it("returns basic auth credentials for app basic auth", () => {
+  it("returns raw credentials for app basic auth", () => {
     const auth = createAuthResolver({
       appId: "app-id",
       appSecret: "app-secret",
@@ -22,7 +44,7 @@ describe("createAuthResolver", () => {
         type: "http",
         scheme: "basic",
       }),
-    ).toBe("YXBwLWlkOmFwcC1zZWNyZXQ=");
+    ).toBe("app-id:app-secret");
   });
 
   it("returns bearer token for bearer auth", () => {
@@ -50,6 +72,96 @@ describe("createAuthResolver", () => {
         in: "header",
       }),
     ).toBe("secret-admin-key");
+  });
+});
+
+describe("request auth headers", () => {
+  it("sends Authorization: Basic base64(app_id:client_secret) for /auth/login", async () => {
+    let authorization: string | null = null;
+
+    const client = createAuthstackClient({
+      baseUrl: "http://localhost:8080",
+      appId: "app-id",
+      appSecret: "app-secret",
+      fetch: async (input, init) => {
+        authorization = getRequestHeader(input, init, "Authorization");
+        return new Response(
+          JSON.stringify({
+            access_token: "access",
+            refresh_token: "refresh",
+            token_type: "Bearer",
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      },
+    });
+
+    await client.api.auth.login({
+      body: {
+        email: "ada@example.com",
+        password: "secret",
+      },
+    });
+
+    expect(authorization).toBe(`Basic ${encodeBasicAuth("app-id", "app-secret")}`);
+  });
+
+  it("sends Authorization: Bearer <token> for bearer-protected endpoints", async () => {
+    let authorization: string | null = null;
+
+    const client = createAuthstackClient({
+      baseUrl: "http://localhost:8080",
+      accessToken: "jwt-token",
+      fetch: async (input, init) => {
+        authorization = getRequestHeader(input, init, "Authorization");
+        return new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      },
+    });
+
+    await client.api.auth.switchOrg({
+      body: {
+        org_id: "org_123",
+      },
+    });
+
+    expect(authorization).toBe("Bearer jwt-token");
+  });
+
+  it("sends X-Admin-Key for admin key protected endpoints", async () => {
+    let adminKey: string | null = null;
+
+    const client = createAuthstackClient({
+      baseUrl: "http://localhost:8080",
+      adminKey: "secret-admin-key",
+      fetch: async (input, init) => {
+        adminKey = getRequestHeader(input, init, "X-Admin-Key");
+        return new Response(
+          JSON.stringify({
+            id: "user_123",
+            email: "ada@example.com",
+          }),
+          {
+            status: 201,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      },
+    });
+
+    await client.api.admin.createUser({
+      body: {
+        email: "ada@example.com",
+        password: "secret",
+      },
+    });
+
+    expect(adminKey).toBe("secret-admin-key");
   });
 });
 
@@ -87,7 +199,7 @@ describe("createAuthstackClient", () => {
         type: "http",
         scheme: "basic",
       }),
-    ).toBe("YXBwLWlkOmFwcC1zZWNyZXQ=");
+    ).toBe("app-id:app-secret");
 
     expect(
       auth({
