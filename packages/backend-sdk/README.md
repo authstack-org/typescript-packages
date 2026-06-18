@@ -34,6 +34,20 @@ if (error) {
 console.log(data);
 ```
 
+### Organization invites
+
+```ts
+const { data: invite } = await client.api.invites.create({
+  path: { org_id: "org_..." },
+  body: {
+    email: "colleague@example.com",
+    role: "member",
+  },
+});
+
+// Share invite.invite_url with the user
+```
+
 ## Authentication
 
 The SDK supports the Authstack security schemes exposed by the OpenAPI contract:

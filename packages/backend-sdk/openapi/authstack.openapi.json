@@ -247,82 +247,6 @@
         }
       }
     },
-    "/admin/users": {
-      "post": {
-        "tags": [
-          "Admin"
-        ],
-        "summary": "Create the first admin user",
-        "operationId": "admin_create_user",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAdminUserRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Admin user created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateAdminUserResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "adminKey": []
-          }
-        ]
-      }
-    },
     "/auth/login": {
       "post": {
         "tags": [
@@ -503,6 +427,48 @@
         ]
       }
     },
+    "/invites/{token}/accept": {
+      "post": {
+        "tags": [
+          "Invites"
+        ],
+        "summary": "Accept an invite and set a password",
+        "operationId": "invites_accept",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Invite token from the invite URL",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInviteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Invite accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptInviteResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/me/organizations": {
       "get": {
         "tags": [
@@ -620,6 +586,91 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/orgs/{org_id}/invites": {
+      "get": {
+        "tags": [
+          "Invites"
+        ],
+        "summary": "List pending organization invites",
+        "operationId": "invites_list",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending invites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InviteResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Invites"
+        ],
+        "summary": "Create an organization invite link",
+        "operationId": "invites_create",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInviteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Invite created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteResponse"
                 }
               }
             }
@@ -832,6 +883,43 @@
   },
   "components": {
     "schemas": {
+      "AcceptInviteRequest": {
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "AcceptInviteResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "name"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "AddMemberRequest": {
         "type": "object",
         "required": [
@@ -845,38 +933,6 @@
             ]
           },
           "user_id": {
-            "type": "string"
-          }
-        }
-      },
-      "CreateAdminUserRequest": {
-        "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "CreateAdminUserResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "email"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "id": {
             "type": "string"
           }
         }
@@ -922,6 +978,30 @@
           }
         }
       },
+      "CreateInviteRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
       "CreateOrgRequest": {
         "type": "object",
         "required": [
@@ -944,6 +1024,43 @@
         ],
         "properties": {
           "error": {
+            "type": "string"
+          }
+        }
+      },
+      "InviteResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "token",
+          "invite_url",
+          "email",
+          "organization_id",
+          "role",
+          "expires_at"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "invite_url": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "token": {
             "type": "string"
           }
         }
@@ -1277,11 +1394,6 @@
         "in": "cookie",
         "name": "admin_token"
       },
-      "adminKey": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-Admin-Key"
-      },
       "appBasicAuth": {
         "type": "http",
         "scheme": "basic"
@@ -1296,7 +1408,7 @@
   "tags": [
     {
       "name": "Admin",
-      "description": "Admin panel and bootstrap endpoints."
+      "description": "Admin panel endpoints."
     },
     {
       "name": "Auth",
@@ -1317,6 +1429,10 @@
     {
       "name": "Members",
       "description": "Organization membership."
+    },
+    {
+      "name": "Invites",
+      "description": "Organization invite links."
     },
     {
       "name": "JWKS",

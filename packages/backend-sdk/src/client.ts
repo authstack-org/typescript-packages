@@ -34,7 +34,6 @@ function createApi(client: Client) {
       loginPage: bind(generated.adminLoginPage, client),
       processLogin: bind(generated.adminProcessLogin, client),
       logout: bind(generated.adminLogout, client),
-      createUser: bind(generated.adminCreateUser, client),
     },
     auth: {
       login: bind(generated.authLogin, client),
@@ -55,6 +54,11 @@ function createApi(client: Client) {
       list: bind(generated.membersList, client),
       add: bind(generated.membersAdd, client),
       remove: bind(generated.membersRemove, client),
+    },
+    invites: {
+      list: bind(generated.invitesList, client),
+      create: bind(generated.invitesCreate, client),
+      accept: bind(generated.invitesAccept, client),
     },
     users: {
       list: bind(generated.usersList, client),
