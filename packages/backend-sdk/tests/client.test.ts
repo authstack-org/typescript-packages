@@ -60,18 +60,18 @@ describe("createAuthResolver", () => {
     ).toBe("jwt-token");
   });
 
-  it("returns admin key for admin header auth", () => {
+  it("returns admin session cookie for admin cookie auth", () => {
     const auth = createAuthResolver({
-      adminKey: "secret-admin-key",
+      adminCookie: "secret-admin-token",
     });
 
     expect(
       auth({
         type: "apiKey",
-        name: "X-Admin-Key",
-        in: "header",
+        name: "admin_token",
+        in: "cookie",
       }),
-    ).toBe("secret-admin-key");
+    ).toBe("secret-admin-token");
   });
 });
 
@@ -133,35 +133,35 @@ describe("request auth headers", () => {
     expect(authorization).toBe("Bearer jwt-token");
   });
 
-  it("sends X-Admin-Key for admin key protected endpoints", async () => {
-    let adminKey: string | null = null;
+  it("sends admin_token cookie for admin protected endpoints", async () => {
+    let cookie: string | null = null;
 
     const client = createAuthstackClient({
       baseUrl: "http://localhost:8080",
-      adminKey: "secret-admin-key",
+      adminCookie: "secret-admin-token",
       fetch: async (input, init) => {
-        adminKey = getRequestHeader(input, init, "X-Admin-Key");
+        cookie = getRequestHeader(input, init, "Cookie");
         return new Response(
           JSON.stringify({
-            id: "user_123",
-            email: "ada@example.com",
+            id: "app_123",
+            name: "My App",
+            client_secret: "secret",
           }),
           {
-            status: 201,
+            status: 200,
             headers: { "Content-Type": "application/json" },
           },
         );
       },
     });
 
-    await client.api.admin.createUser({
+    await client.api.admin.createApplication({
       body: {
-        email: "ada@example.com",
-        password: "secret",
+        name: "My App",
       },
     });
 
-    expect(adminKey).toBe("secret-admin-key");
+    expect(cookie).toBe("admin_token=secret-admin-token");
   });
 });
 
@@ -186,6 +186,7 @@ describe("createAuthstackClient", () => {
 
     client.setAppCredentials("app-id", "app-secret");
     client.setAccessToken("access-token");
+    client.setAdminCookie("admin-token");
 
     const auth = client.getConfig().auth;
     expect(typeof auth).toBe("function");
@@ -207,6 +208,14 @@ describe("createAuthstackClient", () => {
         scheme: "bearer",
       }),
     ).toBe("access-token");
+
+    expect(
+      auth({
+        type: "apiKey",
+        name: "admin_token",
+        in: "cookie",
+      }),
+    ).toBe("admin-token");
   });
 });
 

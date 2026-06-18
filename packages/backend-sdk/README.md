@@ -54,8 +54,7 @@ The SDK supports the Authstack security schemes exposed by the OpenAPI contract:
 
 - **Application basic auth** (`appBasicAuth`) via `appId` + `appSecret`
 - **Bearer JWT** (`bearerAuth`) via `accessToken`
-- **Admin API key** (`adminKey`) via `adminKey`
-- **Admin cookie** (`adminCookie`) via `adminCookie`
+- **Admin session cookie** (`adminCookie`) via `adminCookie` — value of the `admin_token` cookie after logging in at `/admin/login`
 
 ```ts
 const client = createAuthstackClient({
@@ -66,6 +65,7 @@ const client = createAuthstackClient({
 // Update credentials later
 client.setAccessToken("eyJ...");
 client.setAppCredentials("app-id", "app-secret");
+client.setAdminCookie("admin_token_value");
 ```
 
 ## Regenerating the SDK

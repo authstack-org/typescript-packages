@@ -2,7 +2,6 @@ export type AuthstackCredentials = {
   appId?: string;
   appSecret?: string;
   accessToken?: string;
-  adminKey?: string;
   adminCookie?: string;
 };
 
@@ -47,10 +46,6 @@ export function createAuthResolver(credentials: AuthstackCredentials) {
 
     if (auth.type === "http" && auth.scheme === "bearer") {
       return credentials.accessToken;
-    }
-
-    if (auth.type === "apiKey" && auth.name === "X-Admin-Key") {
-      return credentials.adminKey;
     }
 
     if (auth.type === "apiKey" && auth.name === "admin_token") {

@@ -74,7 +74,6 @@ export function createAuthstackClient(config: AuthstackClientConfig) {
     appId: config.appId,
     appSecret: config.appSecret,
     accessToken: config.accessToken,
-    adminKey: config.adminKey,
     adminCookie: config.adminCookie,
   };
 
@@ -105,10 +104,6 @@ export function createAuthstackClient(config: AuthstackClientConfig) {
     },
     setAppCredentials(appId?: string, appSecret?: string) {
       credentials = mergeCredentials(credentials, { appId, appSecret });
-      refreshAuth();
-    },
-    setAdminKey(adminKey?: string) {
-      credentials = mergeCredentials(credentials, { adminKey });
       refreshAuth();
     },
     setAdminCookie(adminCookie?: string) {
