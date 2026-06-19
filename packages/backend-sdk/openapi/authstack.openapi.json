@@ -360,7 +360,7 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Create a user and personal organization",
+        "summary": "Create a user",
         "operationId": "auth_signup",
         "requestBody": {
           "content": {
@@ -1190,30 +1190,20 @@
           }
         }
       },
-      "OrgType": {
-        "type": "string",
-        "enum": [
-          "personal",
-          "team"
-        ]
-      },
       "Organization": {
         "type": "object",
         "required": [
           "id",
           "directory_id",
+          "application_id",
           "name",
           "slug",
-          "org_type",
           "created_at",
           "updated_at"
         ],
         "properties": {
           "application_id": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "created_at": {
             "type": "string",
@@ -1233,9 +1223,6 @@
           },
           "name": {
             "type": "string"
-          },
-          "org_type": {
-            "$ref": "#/components/schemas/OrgType"
           },
           "slug": {
             "type": "string"
@@ -1371,12 +1358,6 @@
           },
           "name": {
             "type": "string"
-          },
-          "scoped_application_id": {
-            "type": [
-              "string",
-              "null"
-            ]
           },
           "updated_at": {
             "type": "string",

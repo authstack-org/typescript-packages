@@ -92,16 +92,13 @@ export type OkResponse = {
     ok: boolean;
 };
 
-export type OrgType = 'personal' | 'team';
-
 export type Organization = {
-    application_id?: string | null;
+    application_id: string;
     created_at: string;
     directory_id: string;
     id: string;
     logo?: string | null;
     name: string;
-    org_type: OrgType;
     slug: string;
     updated_at: string;
 };
@@ -141,7 +138,6 @@ export type User = {
     id: string;
     image?: string | null;
     name: string;
-    scoped_application_id?: string | null;
     updated_at: string;
 };
 

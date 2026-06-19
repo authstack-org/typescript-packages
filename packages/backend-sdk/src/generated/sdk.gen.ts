@@ -201,7 +201,7 @@ export const authRefresh = <ThrowOnError extends boolean = false>(options: Optio
 };
 
 /**
- * Create a user and personal organization
+ * Create a user
  */
 export const authSignup = <ThrowOnError extends boolean = false>(options: Options<AuthSignupData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).post<AuthSignupResponse, unknown, ThrowOnError>({
