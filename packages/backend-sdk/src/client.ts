@@ -45,6 +45,19 @@ function createApi(client: Client) {
     me: {
       organizations: bind(generated.meOrganizations, client),
     },
+    permissions: {
+      list: bind(generated.permissionsList, client),
+      create: bind(generated.permissionsCreate, client),
+      get: bind(generated.permissionsGet, client),
+      delete: bind(generated.permissionsDelete, client),
+    },
+    orgRoles: {
+      list: bind(generated.orgRolesList, client),
+      create: bind(generated.orgRolesCreate, client),
+      get: bind(generated.orgRolesGet, client),
+      update: bind(generated.orgRolesUpdate, client),
+      delete: bind(generated.orgRolesDelete, client),
+    },
     orgs: {
       list: bind(generated.orgsList, client),
       create: bind(generated.orgsCreate, client),

@@ -814,6 +814,370 @@
         ]
       }
     },
+    "/orgs/{org_id}/roles": {
+      "get": {
+        "tags": [
+          "OrgRoles"
+        ],
+        "summary": "List organization roles",
+        "operationId": "org_roles_list",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Roles listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrgRoleDetail"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "OrgRoles"
+        ],
+        "summary": "Create an organization role",
+        "operationId": "org_roles_create",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrgRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Role created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgRoleDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/orgs/{org_id}/roles/{role_id}": {
+      "get": {
+        "tags": [
+          "OrgRoles"
+        ],
+        "summary": "Get an organization role",
+        "operationId": "org_roles_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role_id",
+            "in": "path",
+            "description": "Organization role ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgRoleDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "OrgRoles"
+        ],
+        "summary": "Delete an organization role",
+        "operationId": "org_roles_delete",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role_id",
+            "in": "path",
+            "description": "Organization role ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "OrgRoles"
+        ],
+        "summary": "Update an organization role",
+        "operationId": "org_roles_update",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "path",
+            "description": "Organization ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role_id",
+            "in": "path",
+            "description": "Organization role ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrgRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Role updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgRoleDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/permissions": {
+      "get": {
+        "tags": [
+          "Permissions"
+        ],
+        "summary": "List application permissions",
+        "operationId": "permissions_list",
+        "responses": {
+          "200": {
+            "description": "Permissions listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppPermission"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Permissions"
+        ],
+        "summary": "Create an application permission",
+        "operationId": "permissions_create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppPermissionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Permission created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppPermission"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
+    "/permissions/{id}": {
+      "get": {
+        "tags": [
+          "Permissions"
+        ],
+        "summary": "Get a permission by ID",
+        "operationId": "permissions_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Permission ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Permission found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppPermission"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Permissions"
+        ],
+        "summary": "Delete an application permission",
+        "operationId": "permissions_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Permission ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Permission deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "appBasicAuth": []
+          }
+        ]
+      }
+    },
     "/users": {
       "get": {
         "tags": [
@@ -926,6 +1290,12 @@
           "user_id"
         ],
         "properties": {
+          "org_role_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "role": {
             "type": [
               "string",
@@ -937,12 +1307,72 @@
           }
         }
       },
+      "AppPermission": {
+        "type": "object",
+        "required": [
+          "id",
+          "application_id",
+          "key",
+          "name",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "application_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "CreateAppForm": {
         "type": "object",
         "required": [
           "name"
         ],
         "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateAppPermissionRequest": {
+        "type": "object",
+        "required": [
+          "key",
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           }
@@ -994,6 +1424,12 @@
               "null"
             ]
           },
+          "org_role_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "role": {
             "type": [
               "string",
@@ -1011,6 +1447,33 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateOrgRoleRequest": {
+        "type": "object",
+        "required": [
+          "slug",
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "permission_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "slug": {
             "type": "string"
@@ -1152,6 +1615,7 @@
           "id",
           "organization_id",
           "user_id",
+          "org_role_id",
           "role",
           "created_at",
           "updated_at"
@@ -1162,6 +1626,9 @@
             "format": "date-time"
           },
           "id": {
+            "type": "string"
+          },
+          "org_role_id": {
             "type": "string"
           },
           "organization_id": {
@@ -1189,6 +1656,66 @@
             "type": "boolean"
           }
         }
+      },
+      "OrgRole": {
+        "type": "object",
+        "required": [
+          "id",
+          "organization_id",
+          "slug",
+          "name",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OrgRoleDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OrgRole"
+          },
+          {
+            "type": "object",
+            "required": [
+              "permission_ids"
+            ],
+            "properties": {
+              "permission_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
       },
       "Organization": {
         "type": "object",
@@ -1321,6 +1848,32 @@
           }
         }
       },
+      "UpdateOrgRoleRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "permission_ids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "User": {
         "type": "object",
         "required": [
@@ -1369,11 +1922,18 @@
         "type": "object",
         "required": [
           "organization",
-          "role"
+          "role",
+          "permissions"
         ],
         "properties": {
           "organization": {
             "$ref": "#/components/schemas/Organization"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "role": {
             "type": "string"
@@ -1418,6 +1978,14 @@
     {
       "name": "Organizations",
       "description": "Application-scoped organizations."
+    },
+    {
+      "name": "Permissions",
+      "description": "Application permission catalog."
+    },
+    {
+      "name": "OrgRoles",
+      "description": "Organization role definitions."
     },
     {
       "name": "Members",

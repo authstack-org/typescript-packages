@@ -12,11 +12,28 @@ export type AcceptInviteResponse = {
 };
 
 export type AddMemberRequest = {
+    org_role_id?: string | null;
     role?: string | null;
     user_id: string;
 };
 
+export type AppPermission = {
+    application_id: string;
+    created_at: string;
+    description?: string | null;
+    id: string;
+    key: string;
+    name: string;
+    updated_at: string;
+};
+
 export type CreateAppForm = {
+    name: string;
+};
+
+export type CreateAppPermissionRequest = {
+    description?: string | null;
+    key: string;
     name: string;
 };
 
@@ -33,11 +50,19 @@ export type CreateApplicationResponse = {
 export type CreateInviteRequest = {
     email: string;
     name?: string | null;
+    org_role_id?: string | null;
     role?: string | null;
 };
 
 export type CreateOrgRequest = {
     name: string;
+    slug: string;
+};
+
+export type CreateOrgRoleRequest = {
+    description?: string | null;
+    name: string;
+    permission_ids?: Array<string>;
     slug: string;
 };
 
@@ -82,6 +107,7 @@ export type LoginRequest = {
 export type Member = {
     created_at: string;
     id: string;
+    org_role_id: string;
     organization_id: string;
     role: string;
     updated_at: string;
@@ -90,6 +116,20 @@ export type Member = {
 
 export type OkResponse = {
     ok: boolean;
+};
+
+export type OrgRole = {
+    created_at: string;
+    description?: string | null;
+    id: string;
+    name: string;
+    organization_id: string;
+    slug: string;
+    updated_at: string;
+};
+
+export type OrgRoleDetail = OrgRole & {
+    permission_ids: Array<string>;
 };
 
 export type Organization = {
@@ -130,6 +170,12 @@ export type TokenResponse = {
     token_type: string;
 };
 
+export type UpdateOrgRoleRequest = {
+    description?: string | null;
+    name?: string | null;
+    permission_ids?: Array<string> | null;
+};
+
 export type User = {
     created_at: string;
     directory_id: string;
@@ -143,6 +189,7 @@ export type User = {
 
 export type UserOrganization = {
     organization: Organization;
+    permissions: Array<string>;
     role: string;
 };
 
@@ -551,6 +598,197 @@ export type MembersRemoveResponses = {
 };
 
 export type MembersRemoveResponse = MembersRemoveResponses[keyof MembersRemoveResponses];
+
+export type OrgRolesListData = {
+    body?: never;
+    path: {
+        /**
+         * Organization ID
+         */
+        org_id: string;
+    };
+    query?: never;
+    url: '/orgs/{org_id}/roles';
+};
+
+export type OrgRolesListResponses = {
+    /**
+     * Roles listed
+     */
+    200: Array<OrgRoleDetail>;
+};
+
+export type OrgRolesListResponse = OrgRolesListResponses[keyof OrgRolesListResponses];
+
+export type OrgRolesCreateData = {
+    body: CreateOrgRoleRequest;
+    path: {
+        /**
+         * Organization ID
+         */
+        org_id: string;
+    };
+    query?: never;
+    url: '/orgs/{org_id}/roles';
+};
+
+export type OrgRolesCreateResponses = {
+    /**
+     * Role created
+     */
+    200: OrgRoleDetail;
+};
+
+export type OrgRolesCreateResponse = OrgRolesCreateResponses[keyof OrgRolesCreateResponses];
+
+export type OrgRolesDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Organization ID
+         */
+        org_id: string;
+        /**
+         * Organization role ID
+         */
+        role_id: string;
+    };
+    query?: never;
+    url: '/orgs/{org_id}/roles/{role_id}';
+};
+
+export type OrgRolesDeleteResponses = {
+    /**
+     * Role deleted
+     */
+    200: OkResponse;
+};
+
+export type OrgRolesDeleteResponse = OrgRolesDeleteResponses[keyof OrgRolesDeleteResponses];
+
+export type OrgRolesGetData = {
+    body?: never;
+    path: {
+        /**
+         * Organization ID
+         */
+        org_id: string;
+        /**
+         * Organization role ID
+         */
+        role_id: string;
+    };
+    query?: never;
+    url: '/orgs/{org_id}/roles/{role_id}';
+};
+
+export type OrgRolesGetResponses = {
+    /**
+     * Role found
+     */
+    200: OrgRoleDetail;
+};
+
+export type OrgRolesGetResponse = OrgRolesGetResponses[keyof OrgRolesGetResponses];
+
+export type OrgRolesUpdateData = {
+    body: UpdateOrgRoleRequest;
+    path: {
+        /**
+         * Organization ID
+         */
+        org_id: string;
+        /**
+         * Organization role ID
+         */
+        role_id: string;
+    };
+    query?: never;
+    url: '/orgs/{org_id}/roles/{role_id}';
+};
+
+export type OrgRolesUpdateResponses = {
+    /**
+     * Role updated
+     */
+    200: OrgRoleDetail;
+};
+
+export type OrgRolesUpdateResponse = OrgRolesUpdateResponses[keyof OrgRolesUpdateResponses];
+
+export type PermissionsListData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/permissions';
+};
+
+export type PermissionsListResponses = {
+    /**
+     * Permissions listed
+     */
+    200: Array<AppPermission>;
+};
+
+export type PermissionsListResponse = PermissionsListResponses[keyof PermissionsListResponses];
+
+export type PermissionsCreateData = {
+    body: CreateAppPermissionRequest;
+    path?: never;
+    query?: never;
+    url: '/permissions';
+};
+
+export type PermissionsCreateResponses = {
+    /**
+     * Permission created
+     */
+    200: AppPermission;
+};
+
+export type PermissionsCreateResponse = PermissionsCreateResponses[keyof PermissionsCreateResponses];
+
+export type PermissionsDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Permission ID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/permissions/{id}';
+};
+
+export type PermissionsDeleteResponses = {
+    /**
+     * Permission deleted
+     */
+    200: OkResponse;
+};
+
+export type PermissionsDeleteResponse = PermissionsDeleteResponses[keyof PermissionsDeleteResponses];
+
+export type PermissionsGetData = {
+    body?: never;
+    path: {
+        /**
+         * Permission ID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/permissions/{id}';
+};
+
+export type PermissionsGetResponses = {
+    /**
+     * Permission found
+     */
+    200: AppPermission;
+};
+
+export type PermissionsGetResponse = PermissionsGetResponses[keyof PermissionsGetResponses];
 
 export type UsersListData = {
     body?: never;

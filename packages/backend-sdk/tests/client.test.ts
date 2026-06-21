@@ -174,6 +174,8 @@ describe("createAuthstackClient", () => {
     });
 
     expect(client.api.auth.signup).toBeTypeOf("function");
+    expect(client.api.permissions.list).toBeTypeOf("function");
+    expect(client.api.orgRoles.list).toBeTypeOf("function");
     expect(client.api.orgs.list).toBeTypeOf("function");
     expect(client.api.admin.createApplication).toBeTypeOf("function");
     expect(client.api.jwks).toBeTypeOf("function");
