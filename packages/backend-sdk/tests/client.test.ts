@@ -76,7 +76,7 @@ describe("createAuthResolver", () => {
 });
 
 describe("request auth headers", () => {
-  it("sends Authorization: Basic base64(app_id:client_secret) for /auth/login", async () => {
+  it("sends Authorization: Basic base64(app_id:client_secret) for sign-in", async () => {
     let authorization: string | null = null;
 
     const client = createAuthstackClient({
@@ -99,11 +99,9 @@ describe("request auth headers", () => {
       },
     });
 
-    await client.api.auth.login({
-      body: {
-        email: "ada@example.com",
-        password: "secret",
-      },
+    await client.signIn.email({
+      email: "ada@example.com",
+      password: "secret",
     });
 
     expect(authorization).toBe(`Basic ${encodeBasicAuth("app-id", "app-secret")}`);
@@ -124,11 +122,7 @@ describe("request auth headers", () => {
       },
     });
 
-    await client.api.auth.switchOrg({
-      body: {
-        org_id: "org_123",
-      },
-    });
+    await client.session.switchOrg({ orgId: "org_123" });
 
     expect(authorization).toBe("Bearer jwt-token");
   });
@@ -166,19 +160,85 @@ describe("request auth headers", () => {
 });
 
 describe("createAuthstackClient", () => {
-  it("exposes grouped API namespaces", () => {
+  it("exposes ergonomic and low-level API namespaces", () => {
     const client = createAuthstackClient({
       baseUrl: "http://localhost:8080",
       appId: "app-id",
       appSecret: "app-secret",
     });
 
+    expect(client.signUp.email).toBeTypeOf("function");
+    expect(client.organization.list).toBeTypeOf("function");
+    expect(client.organization.roles.list).toBeTypeOf("function");
+    expect(client.permissions.list).toBeTypeOf("function");
     expect(client.api.auth.signup).toBeTypeOf("function");
-    expect(client.api.permissions.list).toBeTypeOf("function");
-    expect(client.api.orgRoles.list).toBeTypeOf("function");
-    expect(client.api.orgs.list).toBeTypeOf("function");
-    expect(client.api.admin.createApplication).toBeTypeOf("function");
-    expect(client.api.jwks).toBeTypeOf("function");
+    expect(client.jwks).toBeTypeOf("function");
+  });
+
+  it("stores session after sign-in when autoUseSession is enabled", async () => {
+    const client = createAuthstackClient({
+      baseUrl: "http://localhost:8080",
+      appId: "app-id",
+      appSecret: "app-secret",
+      fetch: async () =>
+        new Response(
+          JSON.stringify({
+            access_token: "access-token",
+            refresh_token: "refresh-token",
+            token_type: "Bearer",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+    });
+
+    await client.signIn.email({
+      email: "ada@example.com",
+      password: "secret",
+    });
+
+    expect(client.getSession()?.accessToken).toBe("access-token");
+    expect(client.getSession()?.refreshToken).toBe("refresh-token");
+  });
+
+  it("throws AuthstackApiError by default on ergonomic calls", async () => {
+    const client = createAuthstackClient({
+      baseUrl: "http://localhost:8080",
+      appId: "app-id",
+      appSecret: "app-secret",
+      fetch: async () =>
+        new Response(JSON.stringify({ error: "invalid credentials" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }),
+    });
+
+    await expect(
+      client.signIn.email({ email: "ada@example.com", password: "wrong" }),
+    ).rejects.toBeInstanceOf(AuthstackApiError);
+  });
+
+  it("returns { data, error } when throwOnError is false", async () => {
+    const client = createAuthstackClient({
+      baseUrl: "http://localhost:8080",
+      throwOnError: false,
+      appId: "app-id",
+      appSecret: "app-secret",
+      fetch: async () =>
+        new Response(JSON.stringify({ error: "invalid credentials" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }),
+    });
+
+    const result = await client.signIn.email(
+      { email: "ada@example.com", password: "wrong" },
+      { throwOnError: false },
+    );
+
+    expect(result).toHaveProperty("error");
+    if ("error" in result && result.error) {
+      expect(result.error).toBeInstanceOf(AuthstackApiError);
+    }
   });
 
   it("updates credentials via setters", () => {
@@ -218,6 +278,27 @@ describe("createAuthstackClient", () => {
         in: "cookie",
       }),
     ).toBe("admin-token");
+  });
+
+  it("clears bearer auth with asApp()", () => {
+    const client = createAuthstackClient({
+      baseUrl: "http://localhost:8080",
+      accessToken: "jwt-token",
+    });
+
+    client.asApp();
+
+    const auth = client.getConfig().auth;
+    if (typeof auth !== "function") {
+      throw new Error("expected auth resolver");
+    }
+
+    expect(
+      auth({
+        type: "http",
+        scheme: "bearer",
+      }),
+    ).toBeUndefined();
   });
 });
 

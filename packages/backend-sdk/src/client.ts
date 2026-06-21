@@ -5,90 +5,45 @@ import {
   mergeCredentials,
   type AuthstackCredentials,
 } from "./auth.js";
-import * as generated from "./generated/sdk.gen.js";
+import { createErgonomicApi } from "./ergonomic-api.js";
+import type { TokenResponse } from "./generated/types.gen.js";
 import type { ClientOptions } from "./generated/types.gen.js";
+import { createRawApi } from "./raw-api.js";
+import {
+  sessionFromTokenResponse,
+  type AuthstackSession,
+} from "./session.js";
 
 export type AuthstackClientConfig = AuthstackCredentials & {
   baseUrl: string;
   headers?: Record<string, string>;
   fetch?: typeof fetch;
+  /**
+   * When true (default), ergonomic methods throw {@link AuthstackApiError} on failure.
+   * The low-level `api` namespace always returns `{ data, error }`.
+   */
+  throwOnError?: boolean;
+  /**
+   * When true (default), successful sign-in, refresh, and org-switch responses
+   * automatically call {@link AuthstackClient.useSession}.
+   */
+  autoUseSession?: boolean;
 };
-
-type SdkOptions<T> = Omit<T, "client">;
-
-function bind<T extends { client?: Client }, R>(
-  fn: (options: T) => R,
-  client: Client,
-) {
-  return (options?: SdkOptions<T>) => fn({ ...(options ?? {}), client } as T);
-}
-
-function createApi(client: Client) {
-  return {
-    jwks: bind(generated.jwks, client),
-    admin: {
-      createApplication: bind(generated.adminCreateApplication, client),
-      createApp: bind(generated.adminCreateApp, client),
-      newAppPage: bind(generated.adminNewAppPage, client),
-      dashboard: bind(generated.adminDashboard, client),
-      loginPage: bind(generated.adminLoginPage, client),
-      processLogin: bind(generated.adminProcessLogin, client),
-      logout: bind(generated.adminLogout, client),
-    },
-    auth: {
-      login: bind(generated.authLogin, client),
-      logout: bind(generated.authLogout, client),
-      refresh: bind(generated.authRefresh, client),
-      signup: bind(generated.authSignup, client),
-      switchOrg: bind(generated.authSwitchOrg, client),
-    },
-    me: {
-      organizations: bind(generated.meOrganizations, client),
-    },
-    permissions: {
-      list: bind(generated.permissionsList, client),
-      create: bind(generated.permissionsCreate, client),
-      get: bind(generated.permissionsGet, client),
-      delete: bind(generated.permissionsDelete, client),
-    },
-    orgRoles: {
-      list: bind(generated.orgRolesList, client),
-      create: bind(generated.orgRolesCreate, client),
-      get: bind(generated.orgRolesGet, client),
-      update: bind(generated.orgRolesUpdate, client),
-      delete: bind(generated.orgRolesDelete, client),
-    },
-    orgs: {
-      list: bind(generated.orgsList, client),
-      create: bind(generated.orgsCreate, client),
-      get: bind(generated.orgsGet, client),
-    },
-    members: {
-      list: bind(generated.membersList, client),
-      add: bind(generated.membersAdd, client),
-      remove: bind(generated.membersRemove, client),
-    },
-    invites: {
-      list: bind(generated.invitesList, client),
-      create: bind(generated.invitesCreate, client),
-      accept: bind(generated.invitesAccept, client),
-    },
-    users: {
-      list: bind(generated.usersList, client),
-      get: bind(generated.usersGet, client),
-    },
-  };
-}
 
 export type AuthstackClient = ReturnType<typeof createAuthstackClient>;
 
 export function createAuthstackClient(config: AuthstackClientConfig) {
+  const throwOnError = config.throwOnError ?? true;
+  const autoUseSession = config.autoUseSession ?? true;
+
   let credentials: AuthstackCredentials = {
     appId: config.appId,
     appSecret: config.appSecret,
     accessToken: config.accessToken,
     adminCookie: config.adminCookie,
   };
+
+  let session: AuthstackSession | undefined;
 
   const client = createClient(
     createConfig<ClientOptions>({
@@ -105,24 +60,87 @@ export function createAuthstackClient(config: AuthstackClientConfig) {
     });
   };
 
-  const api = createApi(client);
+  const applySession = (tokens: TokenResponse) => {
+    session = sessionFromTokenResponse(tokens);
+    credentials = mergeCredentials(credentials, {
+      accessToken: session.accessToken,
+    });
+    refreshAuth();
+    return session;
+  };
+
+  const api = createRawApi(client);
+
+  const ergonomic = createErgonomicApi({
+    client,
+    throwOnError,
+    onSession: autoUseSession ? applySession : undefined,
+  });
 
   return {
+    /** Low-level OpenAPI client. Returns `{ data, error }` for every call. */
     client,
     api,
+    ...ergonomic,
+
+    throwOnError,
     getConfig: () => client.getConfig(),
-    setAccessToken(accessToken?: string) {
+
+    /** Store tokens on the client for subsequent bearer-authenticated calls. */
+    useSession(tokens: TokenResponse | AuthstackSession) {
+      if ("access_token" in tokens) {
+        return applySession(tokens);
+      }
+
+      session = tokens;
+      credentials = mergeCredentials(credentials, {
+        accessToken: tokens.accessToken,
+      });
+      refreshAuth();
+      return session;
+    },
+
+    getSession(): AuthstackSession | undefined {
+      return session;
+    },
+
+    clearSession() {
+      session = undefined;
+      credentials = mergeCredentials(credentials, { accessToken: undefined });
+      refreshAuth();
+    },
+
+    /** Use application basic auth (clears the bearer access token). */
+    asApp() {
+      session = undefined;
+      credentials = mergeCredentials(credentials, { accessToken: undefined });
+      refreshAuth();
+    },
+
+    /** Use a bearer access token for user-scoped calls. */
+    asUser(accessToken: string) {
       credentials = mergeCredentials(credentials, { accessToken });
       refreshAuth();
     },
+
+    setAccessToken(accessToken?: string) {
+      credentials = mergeCredentials(credentials, { accessToken });
+      if (accessToken && session) {
+        session = { ...session, accessToken };
+      }
+      refreshAuth();
+    },
+
     setAppCredentials(appId?: string, appSecret?: string) {
       credentials = mergeCredentials(credentials, { appId, appSecret });
       refreshAuth();
     },
+
     setAdminCookie(adminCookie?: string) {
       credentials = mergeCredentials(credentials, { adminCookie });
       refreshAuth();
     },
+
     setCredentials(next: Partial<AuthstackCredentials>) {
       credentials = mergeCredentials(credentials, next);
       refreshAuth();
